@@ -1,0 +1,26 @@
+[general]
+name=QGIS to CoFrance v2
+qgisMinimumVersion=3.0
+description=Export styled QGIS template layers to CoFrance v2 GeoJSON.
+version=2.0.2
+author=Simon N.
+email=
+
+about=Exports polygon, line, symbol, and text template layers to CoFrance v2.
+    QGIS symbology and labeling are converted to CoFrance style properties.
+    Optional runway activation fields are validated and converted automatically.
+    Exported coordinates are limited to six decimal places.
+    Supported symbols: diamond, circle_cross, diamond_cross, triangle_hollow,
+    triangle_filled, triangle_hollow_thick_bottom_border,
+    triangle_with_circle_rings, circle, square, asterix, cross,
+    circle_with_outer_rings, vor_classic, and ndb_classic.
+
+tracker=https://github.com/simonA359/qgis2neoradar/issues
+repository=https://github.com/simonA359/qgis2neoradar
+tags=cofrance,geojson,atc
+
+homepage=https://github.com/simonA359/qgis2neoradar
+category=Vector
+icon=icon.png
+experimental=False
+deprecated=False

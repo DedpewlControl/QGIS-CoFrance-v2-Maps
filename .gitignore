@@ -1,0 +1,118 @@
+# ============================================================
+# QGIS project backups and temporary files
+# ============================================================
+
+*.qgs~
+*.qgz~
+*.qgd~
+*.qgs.bak
+*.qgz.bak
+*.qgd.bak
+*.qgs.tmp
+*.qgz.tmp
+*.qgd.tmp
+*.qlr~
+*.qml~
+
+# ============================================================
+# GeoPackage temporary and transaction files
+# Keep the actual *.gpkg files tracked
+# ============================================================
+
+*.gpkg-wal
+*.gpkg-shm
+*.gpkg-journal
+*.gpkg.lock
+*.gpkg-lck
+*.gpkg.tmp
+*.gpkg.temp
+*.gpkg~
+*.gpkg.bak
+
+# Alternative GeoPackage sidecar naming
+*.gpkg.*
+!*.gpkg.aux.xml
+
+# ============================================================
+# SQLite temporary and transaction files
+# ============================================================
+
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite.lock
+*.sqlite-lck
+*.sqlite.tmp
+*.sqlite.temp
+*.sqlite~
+*.sqlite.bak
+
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+*.sqlite3.lock
+*.sqlite3-lck
+
+*.db-wal
+*.db-shm
+*.db-journal
+*.db.lock
+*.db-lck
+
+# QGIS auxiliary database transaction files
+*.qgd-wal
+*.qgd-shm
+*.qgd-journal
+
+# ============================================================
+# GDAL-generated temporary and auxiliary files
+# ============================================================
+
+*.aux.xml
+*.ovr
+*.rrd
+*.tmp
+*.temp
+*.bak
+*.lock
+*.lck
+
+# ============================================================
+# QGIS local configuration
+# ============================================================
+
+.qgis/
+.qgis2/
+.qgis3/
+
+# ============================================================
+# Python cache
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# ============================================================
+# Editor files
+# ============================================================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================================
+# Operating-system files
+# ============================================================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
