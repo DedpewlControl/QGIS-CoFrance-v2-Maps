@@ -66,13 +66,16 @@ class ActivationTests(unittest.TestCase):
             build_activation(" lfmn ", "04l, 04R", "22l 22R"),
             {
                 "activeRunways": {
-                    "LFMN": {"arr": "04L 04R", "dep": "22L 22R"}
+                    "LFMN": {
+                        "arr": ["04L", "04R"],
+                        "dep": ["22L", "22R"],
+                    }
                 }
             },
         )
 
     def test_runways_are_normalized_and_deduplicated(self):
-        self.assertEqual(normalize_runways("04L, 04l; 04R"), "04L 04R")
+        self.assertEqual(normalize_runways("04L, 04l; 04R"), ["04L", "04R"])
 
     def test_runway_requires_icao(self):
         with self.assertRaisesRegex(CoFranceSchemaError, "activation_icao"):
@@ -96,6 +99,9 @@ class SymbolAndGroupingTests(unittest.TestCase):
         self.assertEqual(validate_symbol_type(" VOR_CLASSIC "), "vor_classic")
         self.assertEqual(validate_symbol_type("diamond_cross"), "diamond_cross")
         self.assertEqual(validate_symbol_type("cross"), "cross")
+        self.assertEqual(validate_symbol_type(" VOR_DME "), "vor_dme")
+        self.assertEqual(validate_symbol_type("tacan"), "tacan")
+        self.assertEqual(validate_symbol_type("vortac"), "vortac")
 
     def test_unknown_symbol_is_rejected(self):
         with self.assertRaisesRegex(CoFranceSchemaError, "Unsupported"):

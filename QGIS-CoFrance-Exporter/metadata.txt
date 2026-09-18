@@ -2,7 +2,7 @@
 name=QGIS to CoFrance v2
 qgisMinimumVersion=3.0
 description=Export styled QGIS template layers to CoFrance v2 GeoJSON.
-version=2.0.2
+version=2.0.4
 author=Simon N.
 email=
 
@@ -14,6 +14,8 @@ about=Exports polygon, line, symbol, and text template layers to CoFrance v2.
     triangle_filled, triangle_hollow_thick_bottom_border,
     triangle_with_circle_rings, circle, square, asterix, cross,
     circle_with_outer_rings, vor_classic, and ndb_classic.
+    Additional navaid symbols: vor_dme, dme, vor, ndb, navaid, tacan,
+    and vortac.
 
 tracker=https://github.com/simonA359/qgis2neoradar/issues
 repository=https://github.com/simonA359/qgis2neoradar

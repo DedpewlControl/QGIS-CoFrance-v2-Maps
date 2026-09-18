@@ -58,6 +58,27 @@
               <Option type="Map">
                 <Option name="ndb_classic" value="ndb_classic" type="QString"/>
               </Option>
+              <Option type="Map">
+                <Option name="vor_dme" value="vor_dme" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="dme" value="dme" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="vor" value="vor" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="ndb" value="ndb" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="navaid" value="navaid" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="tacan" value="tacan" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="vortac" value="vortac" type="QString"/>
+              </Option>
             </Option>
           </Option>
         </config>

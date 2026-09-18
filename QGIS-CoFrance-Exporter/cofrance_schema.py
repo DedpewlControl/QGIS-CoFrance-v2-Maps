@@ -37,6 +37,13 @@ SUPPORTED_SYMBOL_TYPES = (
     "circle_with_outer_rings",
     "vor_classic",
     "ndb_classic",
+    "vor_dme",
+    "dme",
+    "vor",
+    "ndb",
+    "navaid",
+    "tacan",
+    "vortac",
 )
 
 _ICAO_RE = re.compile(r"^[A-Z]{4}$")
@@ -104,9 +111,9 @@ def validate_layer_fields(layer_kind, field_names):
 
 
 def normalize_runways(value):
-    """Normalize comma/space-separated runway designators for CoFrance."""
+    """Normalize runway designators into a CoFrance string array."""
     if is_blank(value):
-        return ""
+        return []
 
     tokens = [
         token.upper()
@@ -122,7 +129,7 @@ def normalize_runways(value):
         )
 
     # Remove duplicates without changing the order entered in QGIS.
-    return " ".join(dict.fromkeys(tokens))
+    return list(dict.fromkeys(tokens))
 
 
 def build_activation(icao, arrivals, departures):
