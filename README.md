@@ -8,6 +8,9 @@ visual styling from QGIS, validates the required attributes, converts runway
 activation fields, transforms geometries to WGS 84, and produces a clean
 CoFrance-compatible `FeatureCollection`.
 
+This project is based on Simon's original QGIS exporter plugin and has been
+substantially reworked for the current CoFrance v2 layer schema and workflow.
+
 ## Features
 
 - Export multiple QGIS vector layers to one GeoJSON file.
@@ -150,14 +153,17 @@ The exporter produces:
 "activation": {
   "activeRunways": {
     "LFMN": {
-      "arr": "04L 04R"
+      "arr": [
+        "04L",
+        "04R"
+      ]
     }
   }
 }
 ```
 
 Runways may be separated with commas, spaces, or semicolons. Values are
-uppercased, deduplicated, and exported with spaces. Valid designators use a
+uppercased, deduplicated, and exported as JSON arrays. Valid designators use a
 runway number from `01` to `36` with an optional `L`, `C`, or `R` suffix.
 
 ## Supported symbols
