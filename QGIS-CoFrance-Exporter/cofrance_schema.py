@@ -35,8 +35,6 @@ SUPPORTED_SYMBOL_TYPES = (
     "asterix",
     "cross",
     "circle_with_outer_rings",
-    "vor_classic",
-    "ndb_classic",
     "vor_dme",
     "dme",
     "vor",

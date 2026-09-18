@@ -34,9 +34,23 @@ SYMBOL_TYPES = (
     "asterix",
     "cross",
     "circle_with_outer_rings",
-    "vor_classic",
-    "ndb_classic",
+    "vor_dme",
+    "dme",
+    "vor",
+    "ndb",
+    "navaid",
+    "tacan",
+    "vortac",
 )
+
+SVG_STYLE_FILES = {
+    "vor_dme": "VOR_DME.svg",
+    "dme": "DME.svg",
+    "vor": "VOR.svg",
+    "ndb": "NDB.svg",
+    "tacan": "TACAN.svg",
+    "vortac": "VORTAC.svg",
+}
 
 TEMPLATES = {
     "polygons": {
@@ -110,8 +124,69 @@ def _symbol_widget():
     </field>""".format(entries="\n".join(entries))
 
 
+def _marker_symbol(symbol_index, svg_filename=None):
+    if svg_filename is None:
+        symbol_layer = """      <layer class="SimpleMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="name" value="circle" type="QString"/>
+          <Option name="color" value="128,128,128,255" type="QString"/>
+          <Option name="outline_color" value="35,35,35,255" type="QString"/>
+          <Option name="size" value="4" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>"""
+    else:
+        symbol_layer = """      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/{filename}" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>""".format(filename=svg_filename)
+    return """    <symbol name="{index}" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+{layer}
+    </symbol>""".format(index=symbol_index, layer=symbol_layer)
+
+
+def _symbol_renderer():
+    """Return categorized SVG previews with a fallback for unmapped types."""
+    categories = []
+    symbols = []
+    for symbol_index, (symbol_type, svg_filename) in enumerate(
+        SVG_STYLE_FILES.items()
+    ):
+        categories.append(
+            '      <category value="{value}" label="{value}" '
+            'symbol="{index}" render="true" type="string"/>'.format(
+                value=symbol_type, index=symbol_index
+            )
+        )
+        symbols.append(_marker_symbol(symbol_index, svg_filename))
+
+    fallback_index = len(symbols)
+    categories.append(
+        '      <category value="" label="Other symbols" '
+        'symbol="{index}" render="true" type="string"/>'.format(
+            index=fallback_index
+        )
+    )
+    symbols.append(_marker_symbol(fallback_index))
+    return """  <renderer-v2 type="categorizedSymbol" attr="symbol_type" symbollevels="0" referencescale="-1" enableorderby="0" forceraster="0">
+    <categories>
+{categories}
+    </categories>
+    <symbols>
+{symbols}
+    </symbols>
+  </renderer-v2>""".format(
+        categories="\n".join(categories), symbols="\n".join(symbols)
+    )
+
+
 def qgis_field_style(template_name, fields):
-    """Return a minimal QGIS QML style containing field editor widgets."""
+    """Return the QGIS editor configuration and optional symbol previews."""
     widgets = []
     for field_name in fields:
         if template_name == "symbols" and field_name == "symbol_type":
@@ -122,8 +197,11 @@ def qgis_field_style(template_name, fields):
         '    <alias name="" index="{}" field="{}"/>'.format(index, field_name)
         for index, field_name in enumerate(fields)
     )
+    renderer = _symbol_renderer() if template_name == "symbols" else ""
+    style_categories = "Symbology|Fields" if renderer else "Fields"
     return """<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.34.0" styleCategories="Fields">
+<qgis version="3.34.0" styleCategories="{style_categories}">
+{renderer}
   <fieldConfiguration>
 {widgets}
   </fieldConfiguration>
@@ -131,7 +209,12 @@ def qgis_field_style(template_name, fields):
 {aliases}
   </aliases>
 </qgis>
-""".format(widgets="\n".join(widgets), aliases=aliases)
+""".format(
+        style_categories=style_categories,
+        renderer=renderer,
+        widgets="\n".join(widgets),
+        aliases=aliases,
+    )
 
 
 def _create_core_tables(connection):

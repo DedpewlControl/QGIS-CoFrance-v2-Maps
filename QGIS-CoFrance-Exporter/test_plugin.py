@@ -96,12 +96,17 @@ class ActivationTests(unittest.TestCase):
 
 class SymbolAndGroupingTests(unittest.TestCase):
     def test_supported_symbol_is_normalized(self):
-        self.assertEqual(validate_symbol_type(" VOR_CLASSIC "), "vor_classic")
         self.assertEqual(validate_symbol_type("diamond_cross"), "diamond_cross")
         self.assertEqual(validate_symbol_type("cross"), "cross")
         self.assertEqual(validate_symbol_type(" VOR_DME "), "vor_dme")
         self.assertEqual(validate_symbol_type("tacan"), "tacan")
         self.assertEqual(validate_symbol_type("vortac"), "vortac")
+
+    def test_removed_classic_symbols_are_rejected(self):
+        for symbol_type in ("vor_classic", "ndb_classic"):
+            with self.subTest(symbol_type=symbol_type):
+                with self.assertRaisesRegex(CoFranceSchemaError, "Unsupported"):
+                    validate_symbol_type(symbol_type)
 
     def test_unknown_symbol_is_rejected(self):
         with self.assertRaisesRegex(CoFranceSchemaError, "Unsupported"):

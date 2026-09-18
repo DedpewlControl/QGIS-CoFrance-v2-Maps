@@ -4,7 +4,12 @@ from pathlib import Path
 import sqlite3
 import xml.etree.ElementTree as ElementTree
 
-from create_template_geopackages import OUTPUT_DIRECTORY, SYMBOL_TYPES, TEMPLATES
+from create_template_geopackages import (
+    OUTPUT_DIRECTORY,
+    SVG_STYLE_FILES,
+    SYMBOL_TYPES,
+    TEMPLATES,
+)
 
 
 def validate_all():
@@ -58,6 +63,33 @@ def validate_all():
                     if 'value="{}"'.format(symbol_type) not in style[0]:
                         raise RuntimeError(
                             "Symbol dropdown is missing {}".format(symbol_type)
+                        )
+                for removed_type in ("vor_classic", "ndb_classic"):
+                    if 'value="{}"'.format(removed_type) in style[0]:
+                        raise RuntimeError(
+                            "Removed symbol remains in dropdown: {}".format(
+                                removed_type
+                            )
+                        )
+                style_root = ElementTree.fromstring(style[0])
+                renderer = style_root.find("renderer-v2")
+                if renderer is None or renderer.get("attr") != "symbol_type":
+                    raise RuntimeError("Missing categorized symbol_type renderer")
+                category_values = {
+                    category.get("value")
+                    for category in renderer.findall("./categories/category")
+                }
+                for symbol_type, svg_filename in SVG_STYLE_FILES.items():
+                    if symbol_type not in category_values:
+                        raise RuntimeError(
+                            "SVG renderer is missing {}".format(symbol_type)
+                        )
+                    svg_path = OUTPUT_DIRECTORY / "svg" / svg_filename
+                    if not svg_path.is_file():
+                        raise RuntimeError("Missing SVG asset: {}".format(svg_path))
+                    if 'value="svg/{}"'.format(svg_filename) not in style[0]:
+                        raise RuntimeError(
+                            "QGIS style does not reference {}".format(svg_filename)
                         )
 
         sidecar = path.with_suffix(".qml")

@@ -17,7 +17,7 @@ substantially reworked for the current CoFrance v2 layer schema and workflow.
 - Convert polygons to `MultiPolygon`, lines to `MultiLineString`, and points to
   `MultiPoint`.
 - Read fill, outline, line, marker, and label styling from QGIS.
-- Support all 21 CoFrance symbol types.
+- Support all 19 current CoFrance symbol types.
 - Convert editable runway fields into CoFrance `activation` objects.
 - Transform source layers to `EPSG:4326` automatically.
 - Limit exported coordinates to six decimal places.
@@ -46,7 +46,7 @@ The exporter is available from the Vector menu and the QGIS toolbar as
 
 ## Quick start
 
-Ready-made GeoPackages are available in [`templates`](templates/):
+Ready-made GeoPackages are available in [`QGIS/templates`](QGIS/templates/):
 
 - `cofrance_polygons.gpkg`
 - `cofrance_lines.gpkg`
@@ -60,6 +60,8 @@ map data into the repository copy.
 For each layer you need:
 
 1. Copy the appropriate GeoPackage into your QGIS project's data directory.
+   When using the symbol template, also copy the `svg` directory beside the
+   GeoPackage so QGIS can resolve the bundled symbol artwork.
 2. Rename the copy for your map, for example `nice_vfr_symbols.gpkg`.
 3. Add the copied GeoPackage through **Layer → Add Layer → Add Vector Layer**.
 4. Draw features, complete the required attributes, and style the layer in
@@ -183,8 +185,6 @@ Friendly labels may be shown in QGIS, but the stored value must be one of:
 - `asterix`
 - `cross`
 - `circle_with_outer_rings`
-- `vor_classic`
-- `ndb_classic`
 - `vor_dme`
 - `dme`
 - `vor`
@@ -192,6 +192,11 @@ Friendly labels may be shown in QGIS, but the stored value must be one of:
 - `navaid`
 - `tacan`
 - `vortac`
+
+Selecting `vor_dme`, `dme`, `vor`, `ndb`, `tacan`, or `vortac` automatically
+displays its bundled SVG in QGIS after the edit is applied. The generic
+`navaid` value currently uses the fallback marker because it has no dedicated
+SVG asset.
 
 Unknown symbol values stop the export and produce a validation message.
 

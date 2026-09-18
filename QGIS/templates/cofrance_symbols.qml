@@ -1,5 +1,95 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.34.0" styleCategories="Fields">
+<qgis version="3.34.0" styleCategories="Symbology|Fields">
+  <renderer-v2 type="categorizedSymbol" attr="symbol_type" symbollevels="0" referencescale="-1" enableorderby="0" forceraster="0">
+    <categories>
+      <category value="vor_dme" label="vor_dme" symbol="0" render="true" type="string"/>
+      <category value="dme" label="dme" symbol="1" render="true" type="string"/>
+      <category value="vor" label="vor" symbol="2" render="true" type="string"/>
+      <category value="ndb" label="ndb" symbol="3" render="true" type="string"/>
+      <category value="tacan" label="tacan" symbol="4" render="true" type="string"/>
+      <category value="vortac" label="vortac" symbol="5" render="true" type="string"/>
+      <category value="" label="Other symbols" symbol="6" render="true" type="string"/>
+    </categories>
+    <symbols>
+    <symbol name="0" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/VOR_DME.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="1" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/DME.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="2" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/VOR.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="3" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/NDB.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="4" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/TACAN.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="5" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SvgMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="angle" value="0" type="double"/>
+          <Option name="fixedAspectRatio" value="0" type="double"/>
+          <Option name="name" value="svg/VORTAC.svg" type="QString"/>
+          <Option name="size" value="6" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    <symbol name="6" type="marker" alpha="1" clip_to_extent="1" force_rhr="0">
+      <layer class="SimpleMarker" enabled="1" locked="0" pass="0">
+        <Option type="Map">
+          <Option name="name" value="circle" type="QString"/>
+          <Option name="color" value="128,128,128,255" type="QString"/>
+          <Option name="outline_color" value="35,35,35,255" type="QString"/>
+          <Option name="size" value="4" type="double"/>
+          <Option name="size_unit" value="MM" type="QString"/>
+        </Option>
+      </layer>
+    </symbol>
+    </symbols>
+  </renderer-v2>
   <fieldConfiguration>
     <field name="name" configurationFlags="None">
       <editWidget type="TextEdit">
@@ -51,12 +141,6 @@
               </Option>
               <Option type="Map">
                 <Option name="circle_with_outer_rings" value="circle_with_outer_rings" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="vor_classic" value="vor_classic" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="ndb_classic" value="ndb_classic" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="vor_dme" value="vor_dme" type="QString"/>
