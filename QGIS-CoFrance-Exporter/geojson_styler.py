@@ -21,6 +21,7 @@ from qgis.core import (
 from .cofrance_schema import (
     CoFranceSchemaError,
     build_activation,
+    build_display_properties,
     detect_layer_kind,
     is_blank,
     round_coordinates,
@@ -245,9 +246,7 @@ class GeoJSONStyler:
         if symbol is None:
             return {
                 "color": [0, 0, 0],
-                "width": 0.26,
-                "opacity": 1.0,
-                "dashArray": None,
+                "width": 1,
             }
 
         simple_line = None
@@ -262,7 +261,7 @@ class GeoJSONStyler:
             width = float(simple_line.width())
             if simple_line.useCustomDashPattern():
                 dash_array = [float(value) for value in simple_line.customDashVector()]
-                dash_array = dash_array or None
+                dash_array = dash_array[:2] if len(dash_array) >= 2 else None
             else:
                 dash_array = self._pen_dash_array(simple_line.penStyle())
         else:
@@ -270,12 +269,13 @@ class GeoJSONStyler:
             width = float(symbol.width()) if hasattr(symbol, "width") else 0.26
             dash_array = None
 
-        return {
+        style = {
             "color": self._rgb(color),
-            "width": width,
-            "opacity": self._opacity(color, symbol),
-            "dashArray": dash_array,
+            "width": max(1, int(width)),
         }
+        if dash_array:
+            style["dashArray"] = dash_array[:2]
+        return style
 
     def _polygon_styles(self, symbol):
         """Extract CoFrance fillStyle and optional outline lineStyle."""
@@ -284,9 +284,7 @@ class GeoJSONStyler:
                 "fillStyle": {"color": [255, 255, 255], "opacity": 1.0},
                 "lineStyle": {
                     "color": [0, 0, 0],
-                    "width": 0.26,
-                    "opacity": 1.0,
-                    "dashArray": None,
+                    "width": 1,
                 },
             }
 
@@ -320,15 +318,16 @@ class GeoJSONStyler:
             ):
                 dash_array = [
                     float(value) for value in simple_fill.customDashVector()
-                ] or None
+                ]
+                dash_array = dash_array[:2] if len(dash_array) >= 2 else None
             else:
                 dash_array = self._pen_dash_array(simple_fill.strokeStyle())
             styles["lineStyle"] = {
                 "color": self._rgb(stroke_color),
-                "width": float(simple_fill.strokeWidth()),
-                "opacity": self._opacity(stroke_color, symbol),
-                "dashArray": dash_array,
+                "width": max(1, int(float(simple_fill.strokeWidth()))),
             }
+            if dash_array:
+                styles["lineStyle"]["dashArray"] = dash_array[:2]
         return styles
 
     def _point_style(self, symbol, symbol_type):
@@ -336,9 +335,7 @@ class GeoJSONStyler:
         if symbol is None:
             return {
                 "type": symbol_type,
-                "color": [128, 128, 128],
-                "size": "medium",
-                "opacity": 1.0,
+                "color": [255, 255, 255],
             }
 
         simple_marker = None
@@ -348,21 +345,9 @@ class GeoJSONStyler:
                 simple_marker = candidate
                 break
         color = simple_marker.color() if simple_marker is not None else symbol.color()
-        if simple_marker is not None:
-            numeric_size = float(simple_marker.size())
-        else:
-            numeric_size = float(symbol.size()) if hasattr(symbol, "size") else 4.0
-        if numeric_size < 3:
-            size = "small"
-        elif numeric_size < 6:
-            size = "medium"
-        else:
-            size = "large"
         return {
             "type": symbol_type,
             "color": self._rgb(color),
-            "size": size,
-            "opacity": self._opacity(color, symbol),
         }
 
     @staticmethod
@@ -371,7 +356,7 @@ class GeoJSONStyler:
         try:
             weight = int(font.weight())
         except Exception:
-            return 600
+            return 400
         if weight > 99:
             return max(100, min(900, int(round(weight / 100.0) * 100)))
         if weight <= 25:
@@ -391,7 +376,7 @@ class GeoJSONStyler:
         color = [0, 0, 0]
         font_family = "Arial"
         font_size = 12.0
-        font_weight = 600
+        font_weight = 400
         try:
             labeling = layer.labeling()
             settings = labeling.settings() if labeling is not None else None
@@ -405,8 +390,7 @@ class GeoJSONStyler:
         except Exception:
             # Complex rule-based labeling may not expose one reusable format.
             pass
-        if font_size.is_integer():
-            font_size = int(font_size)
+        font_size = max(1, int(font_size))
         return {
             "color": color,
             "fontFamily": font_family,
@@ -420,6 +404,11 @@ class GeoJSONStyler:
             self._feature_value(feature, "activation_icao"),
             self._feature_value(feature, "activation_arr"),
             self._feature_value(feature, "activation_dep"),
+            self._feature_value(feature, "activation_unactive_icao"),
+            self._feature_value(feature, "activation_unactive_arr"),
+            self._feature_value(feature, "activation_unactive_dep"),
+            self._feature_value(feature, "activation_sector_me"),
+            self._feature_value(feature, "activation_sector_others"),
         )
 
     def _render_context(self):
@@ -433,6 +422,11 @@ class GeoJSONStyler:
     def _feature_properties(self, layer, feature, layer_kind, symbol, use_layer_style):
         """Build only properties defined by the CoFrance v2 schema."""
         activation = self._activation(feature)
+        properties = build_display_properties(
+            self._feature_value(feature, "z_index"),
+            self._feature_value(feature, "zoomin"),
+            self._feature_value(feature, "zoomout"),
+        )
         if layer_kind == "text":
             uuid = self._feature_value(feature, "uuid")
             text = self._feature_value(feature, "text")
@@ -440,17 +434,17 @@ class GeoJSONStyler:
                 raise CoFranceSchemaError("uuid cannot be empty.")
             if is_blank(text):
                 raise CoFranceSchemaError("text cannot be empty.")
-            properties = {
+            properties.update({
                 "uuid": str(uuid).strip(),
                 "textStyle": self._text_style(
                     layer if use_layer_style else None, text
                 ),
-            }
+            })
         else:
             name = self._feature_value(feature, "name")
             if is_blank(name):
                 raise CoFranceSchemaError("name cannot be empty.")
-            properties = {"name": str(name).strip()}
+            properties["name"] = str(name).strip()
             if layer_kind == "line":
                 properties["lineStyle"] = self._line_style(
                     symbol if use_layer_style else None

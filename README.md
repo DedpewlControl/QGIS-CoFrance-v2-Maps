@@ -17,7 +17,7 @@ substantially reworked for the current CoFrance v2 layer schema and workflow.
 - Convert polygons to `MultiPolygon`, lines to `MultiLineString`, and points to
   `MultiPoint`.
 - Read fill, outline, line, marker, and label styling from QGIS.
-- Support all 19 current CoFrance symbol types.
+- Support all 28 current CoFrance symbol types.
 - Convert editable runway fields into CoFrance `activation` objects.
 - Transform source layers to `EPSG:4326` automatically.
 - Limit exported coordinates to six decimal places.
@@ -71,9 +71,9 @@ For each layer you need:
 
 ## Layer schemas
 
-Use QGIS **Text (string)** fields for every attribute listed below. The three
-activation fields must exist in every template, but their values may be null
-when the feature is always visible.
+Identifier and activation attributes use QGIS **Text (string)** fields.
+`z_index`, `zoomin`, and `zoomout` use **Integer** fields. Optional values may
+be left null when they do not apply.
 
 | Layer type | Geometry | Required fields |
 |---|---|---|
@@ -82,13 +82,23 @@ when the feature is always visible.
 | Symbol | `MultiPoint` | `name`, `symbol_type` |
 | Text | `MultiPoint` | `uuid`, `text` |
 
-Every layer must also contain these nullable Text fields:
+The original active-runway fields remain required for compatibility, although
+their values may be null. Newly generated templates also contain these optional
+wiki fields:
 
 | Field | Purpose |
 |---|---|
 | `activation_icao` | Four-letter ICAO code used by the activation rule |
 | `activation_arr` | Arrival runways for which the feature is active |
 | `activation_dep` | Departure runways for which the feature is active |
+| `activation_unactive_icao` | ICAO code for an inactive-runway condition |
+| `activation_unactive_arr` | Arrival runways that hide the feature while active |
+| `activation_unactive_dep` | Departure runways that hide the feature while active |
+| `activation_sector_me` | Sectors that must be owned by the current controller |
+| `activation_sector_others` | Sectors that must be owned by another controller |
+| `z_index` | Draw order; lower values are drawn first |
+| `zoomin` | Lowest zoom level at which the feature is visible |
+| `zoomout` | Highest zoom level at which the feature is visible |
 
 Although the templates use multi-geometries, the exporter also accepts and
 promotes `Polygon`, `LineString`, and `Point` geometries automatically.
@@ -109,9 +119,9 @@ properties.
 
 | QGIS layer | Exported style |
 |---|---|
-| Polygon | Fill color and opacity; outline color, width, opacity, and dashes |
-| Line | Color, width, opacity, and dash pattern |
-| Symbol | Color, size category, and opacity |
+| Polygon | Fill color and opacity; outline color, width, and dashes |
+| Line | Color, width, and dash pattern |
+| Symbol | Color; CoFrance uses a fixed pixel size for each symbol type |
 | Text | Font family, size, weight, and color |
 
 CoFrance supports one style object per exported feature. Complex stacked
@@ -135,11 +145,13 @@ data-defined label formats are not fully evaluated; use one shared label format
 per text layer. Label offsets, rotation, buffers, and shadows are not part of
 the current CoFrance `textStyle` schema.
 
-## Runway activation
+## Activation
 
-Leave all three activation values empty for a feature that is always visible.
-For a conditional feature, enter a four-letter ICAO code and one or both runway
-lists.
+Leave all activation values empty for a feature that is always visible. Active
+and inactive runway conditions each use an ICAO field plus one or both runway
+lists. Sector ownership fields accept comma- or semicolon-separated names.
+Use `+` to require multiple sectors together, for example
+`LFFFUR+LFFFUH, LFFFUZ`.
 
 Example QGIS values:
 
@@ -168,30 +180,43 @@ Runways may be separated with commas, spaces, or semicolons. Values are
 uppercased, deduplicated, and exported as JSON arrays. Valid designators use a
 runway number from `01` to `36` with an optional `L`, `C`, or `R` suffix.
 
+Inactive runway fields export as `unactiveRunway`. Sector fields export as
+`sectorOwnedByMe` and `sectorOwnedByOthers`, following the wiki's condition
+combination rules.
+
 ## Supported symbols
 
 The symbol template includes a QGIS Value Map dropdown for `symbol_type`.
 Friendly labels may be shown in QGIS, but the stored value must be one of:
 
+- `point`
+- `circle`
+- `square`
 - `diamond`
-- `circle_cross`
 - `diamond_cross`
+- `circle_cross`
+- `cross`
+- `cross_large`
+- `x`
+- `asterix`
 - `triangle_hollow`
 - `triangle_filled`
 - `triangle_hollow_thick_bottom_border`
 - `triangle_with_circle_rings`
-- `circle`
-- `square`
-- `asterix`
-- `cross`
 - `circle_with_outer_rings`
+- `vor`
 - `vor_dme`
 - `dme`
-- `vor`
 - `ndb`
 - `navaid`
 - `tacan`
 - `vortac`
+- `vor_classic`
+- `ndb_classic`
+- `aerodrome`
+- `aerodrome_paved`
+- `aerodrome_ticks`
+- `aerodrome_paved_ticks`
 
 Selecting `vor_dme`, `dme`, `vor`, `ndb`, `tacan`, or `vortac` automatically
 displays its bundled SVG in QGIS after the edit is applied. The generic

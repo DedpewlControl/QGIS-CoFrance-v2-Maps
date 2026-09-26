@@ -107,13 +107,34 @@
           <Option type="Map">
             <Option name="map" type="List">
               <Option type="Map">
+                <Option name="point" value="point" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="circle" value="circle" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="square" value="square" type="QString"/>
+              </Option>
+              <Option type="Map">
                 <Option name="diamond" value="diamond" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="diamond_cross" value="diamond_cross" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="circle_cross" value="circle_cross" type="QString"/>
               </Option>
               <Option type="Map">
-                <Option name="diamond_cross" value="diamond_cross" type="QString"/>
+                <Option name="cross" value="cross" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="cross_large" value="cross_large" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="x" value="x" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="asterix" value="asterix" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="triangle_hollow" value="triangle_hollow" type="QString"/>
@@ -128,28 +149,16 @@
                 <Option name="triangle_with_circle_rings" value="triangle_with_circle_rings" type="QString"/>
               </Option>
               <Option type="Map">
-                <Option name="circle" value="circle" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="square" value="square" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="asterix" value="asterix" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="cross" value="cross" type="QString"/>
-              </Option>
-              <Option type="Map">
                 <Option name="circle_with_outer_rings" value="circle_with_outer_rings" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="vor" value="vor" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="vor_dme" value="vor_dme" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="dme" value="dme" type="QString"/>
-              </Option>
-              <Option type="Map">
-                <Option name="vor" value="vor" type="QString"/>
               </Option>
               <Option type="Map">
                 <Option name="ndb" value="ndb" type="QString"/>
@@ -163,7 +172,55 @@
               <Option type="Map">
                 <Option name="vortac" value="vortac" type="QString"/>
               </Option>
+              <Option type="Map">
+                <Option name="vor_classic" value="vor_classic" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="ndb_classic" value="ndb_classic" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="aerodrome" value="aerodrome" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="aerodrome_paved" value="aerodrome_paved" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="aerodrome_ticks" value="aerodrome_ticks" type="QString"/>
+              </Option>
+              <Option type="Map">
+                <Option name="aerodrome_paved_ticks" value="aerodrome_paved_ticks" type="QString"/>
+              </Option>
             </Option>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="z_index" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="zoomin" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="zoomout" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
           </Option>
         </config>
       </editWidget>
@@ -198,12 +255,70 @@
         </config>
       </editWidget>
     </field>
+    <field name="activation_unactive_icao" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="activation_unactive_arr" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="activation_unactive_dep" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="activation_sector_me" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
+    <field name="activation_sector_others" configurationFlags="None">
+      <editWidget type="TextEdit">
+        <config>
+          <Option type="Map">
+            <Option name="IsMultiline" value="false" type="bool"/>
+            <Option name="UseHtml" value="false" type="bool"/>
+          </Option>
+        </config>
+      </editWidget>
+    </field>
   </fieldConfiguration>
   <aliases>
     <alias name="" index="0" field="name"/>
     <alias name="" index="1" field="symbol_type"/>
-    <alias name="" index="2" field="activation_icao"/>
-    <alias name="" index="3" field="activation_arr"/>
-    <alias name="" index="4" field="activation_dep"/>
+    <alias name="" index="2" field="z_index"/>
+    <alias name="" index="3" field="zoomin"/>
+    <alias name="" index="4" field="zoomout"/>
+    <alias name="" index="5" field="activation_icao"/>
+    <alias name="" index="6" field="activation_arr"/>
+    <alias name="" index="7" field="activation_dep"/>
+    <alias name="" index="8" field="activation_unactive_icao"/>
+    <alias name="" index="9" field="activation_unactive_arr"/>
+    <alias name="" index="10" field="activation_unactive_dep"/>
+    <alias name="" index="11" field="activation_sector_me"/>
+    <alias name="" index="12" field="activation_sector_others"/>
   </aliases>
 </qgis>

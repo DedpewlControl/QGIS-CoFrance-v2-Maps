@@ -19,28 +19,44 @@ ACTIVATION_FIELDS = (
     "activation_icao",
     "activation_arr",
     "activation_dep",
+    "activation_unactive_icao",
+    "activation_unactive_arr",
+    "activation_unactive_dep",
+    "activation_sector_me",
+    "activation_sector_others",
 )
 
+DISPLAY_FIELDS = ("z_index", "zoomin", "zoomout")
+
 SYMBOL_TYPES = (
+    "point",
+    "circle",
+    "square",
     "diamond",
-    "circle_cross",
     "diamond_cross",
+    "circle_cross",
+    "cross",
+    "cross_large",
+    "x",
+    "asterix",
     "triangle_hollow",
     "triangle_filled",
     "triangle_hollow_thick_bottom_border",
     "triangle_with_circle_rings",
-    "circle",
-    "square",
-    "asterix",
-    "cross",
     "circle_with_outer_rings",
+    "vor",
     "vor_dme",
     "dme",
-    "vor",
     "ndb",
     "navaid",
     "tacan",
     "vortac",
+    "vor_classic",
+    "ndb_classic",
+    "aerodrome",
+    "aerodrome_paved",
+    "aerodrome_ticks",
+    "aerodrome_paved_ticks",
 )
 
 SVG_STYLE_FILES = {
@@ -55,22 +71,22 @@ SVG_STYLE_FILES = {
 TEMPLATES = {
     "polygons": {
         "geometry": "MULTIPOLYGON",
-        "fields": ("name",) + ACTIVATION_FIELDS,
+        "fields": ("name",) + DISPLAY_FIELDS + ACTIVATION_FIELDS,
         "required": ("name",),
     },
     "lines": {
         "geometry": "MULTILINESTRING",
-        "fields": ("name",) + ACTIVATION_FIELDS,
+        "fields": ("name",) + DISPLAY_FIELDS + ACTIVATION_FIELDS,
         "required": ("name",),
     },
     "symbols": {
         "geometry": "MULTIPOINT",
-        "fields": ("name", "symbol_type") + ACTIVATION_FIELDS,
+        "fields": ("name", "symbol_type") + DISPLAY_FIELDS + ACTIVATION_FIELDS,
         "required": ("name", "symbol_type"),
     },
     "text": {
         "geometry": "MULTIPOINT",
-        "fields": ("uuid", "text") + ACTIVATION_FIELDS,
+        "fields": ("uuid", "text") + DISPLAY_FIELDS + ACTIVATION_FIELDS,
         "required": ("uuid", "text"),
     },
 }
@@ -332,7 +348,8 @@ def _create_template(path, template_name, definition):
             columns = ['"fid" INTEGER PRIMARY KEY AUTOINCREMENT', '"geom" BLOB']
             symbol_values = ",".join("'{}'".format(value) for value in SYMBOL_TYPES)
             for field_name in definition["fields"]:
-                column = '"{}" TEXT'.format(field_name)
+                field_type = "INTEGER" if field_name in DISPLAY_FIELDS else "TEXT"
+                column = '"{}" {}'.format(field_name, field_type)
                 if field_name in definition["required"]:
                     column += " NOT NULL"
                 if field_name == "symbol_type":

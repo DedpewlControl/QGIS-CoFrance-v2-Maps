@@ -8,40 +8,59 @@ import json
 import re
 
 
-ACTIVATION_FIELDS = (
+REQUIRED_ACTIVATION_FIELDS = (
     "activation_icao",
     "activation_arr",
     "activation_dep",
 )
 
+ACTIVATION_FIELDS = REQUIRED_ACTIVATION_FIELDS + (
+    "activation_unactive_icao",
+    "activation_unactive_arr",
+    "activation_unactive_dep",
+    "activation_sector_me",
+    "activation_sector_others",
+)
+
+DISPLAY_FIELDS = ("z_index", "zoomin", "zoomout")
+
 LAYER_FIELDS = {
-    "polygon": ("name",) + ACTIVATION_FIELDS,
-    "line": ("name",) + ACTIVATION_FIELDS,
-    "symbol": ("name", "symbol_type") + ACTIVATION_FIELDS,
-    "text": ("uuid", "text") + ACTIVATION_FIELDS,
+    "polygon": ("name",) + REQUIRED_ACTIVATION_FIELDS,
+    "line": ("name",) + REQUIRED_ACTIVATION_FIELDS,
+    "symbol": ("name", "symbol_type") + REQUIRED_ACTIVATION_FIELDS,
+    "text": ("uuid", "text") + REQUIRED_ACTIVATION_FIELDS,
 }
 
 # Symbol identifiers supported by CoFrance v2.
 SUPPORTED_SYMBOL_TYPES = (
+    "point",
+    "circle",
+    "square",
     "diamond",
-    "circle_cross",
     "diamond_cross",
+    "circle_cross",
+    "cross",
+    "cross_large",
+    "x",
+    "asterix",
     "triangle_hollow",
     "triangle_filled",
     "triangle_hollow_thick_bottom_border",
     "triangle_with_circle_rings",
-    "circle",
-    "square",
-    "asterix",
-    "cross",
     "circle_with_outer_rings",
+    "vor",
     "vor_dme",
     "dme",
-    "vor",
     "ndb",
     "navaid",
     "tacan",
     "vortac",
+    "vor_classic",
+    "ndb_classic",
+    "aerodrome",
+    "aerodrome_paved",
+    "aerodrome_ticks",
+    "aerodrome_paved_ticks",
 )
 
 _ICAO_RE = re.compile(r"^[A-Z]{4}$")
@@ -130,8 +149,7 @@ def normalize_runways(value):
     return list(dict.fromkeys(tokens))
 
 
-def build_activation(icao, arrivals, departures):
-    """Create an optional CoFrance activeRunways object from template fields."""
+def _runway_condition(condition, field_prefix, icao, arrivals, departures):
     raw_values = (icao, arrivals, departures)
     if all(is_blank(value) for value in raw_values):
         return None
@@ -139,18 +157,22 @@ def build_activation(icao, arrivals, departures):
     normalized_icao = "" if is_blank(icao) else str(icao).strip().upper()
     if not normalized_icao:
         raise CoFranceSchemaError(
-            "activation_icao is required when arrival or departure runways are set."
+            "{}_icao is required when arrival or departure runways are set.".format(
+                field_prefix
+            )
         )
     if not _ICAO_RE.fullmatch(normalized_icao):
         raise CoFranceSchemaError(
-            "activation_icao must contain exactly four letters."
+            "{}_icao must contain exactly four letters.".format(field_prefix)
         )
 
     arr = normalize_runways(arrivals)
     dep = normalize_runways(departures)
     if not arr and not dep:
         raise CoFranceSchemaError(
-            "Enter at least one runway in activation_arr or activation_dep."
+            "Enter at least one runway in {}_arr or {}_dep.".format(
+                field_prefix, field_prefix
+            )
         )
 
     runway_rule = {}
@@ -159,7 +181,105 @@ def build_activation(icao, arrivals, departures):
     if dep:
         runway_rule["dep"] = dep
 
-    return {"activeRunways": {normalized_icao: runway_rule}}
+    return {condition: {normalized_icao: runway_rule}}
+
+
+def normalize_sector_conditions(value):
+    """Normalize comma/semicolon-separated sector ownership expressions."""
+    if is_blank(value):
+        return []
+    sectors = []
+    for raw_token in re.split(r"[,;\n]+", str(value)):
+        token = re.sub(r"\s+", "", raw_token).upper()
+        if not token:
+            continue
+        if not re.fullmatch(r"[A-Z0-9_-]+(?:\+[A-Z0-9_-]+)*", token):
+            raise CoFranceSchemaError(
+                "Invalid sector ownership expression: {}".format(raw_token.strip())
+            )
+        if token not in sectors:
+            sectors.append(token)
+    return sectors
+
+
+def build_activation(
+    icao,
+    arrivals,
+    departures,
+    unactive_icao=None,
+    unactive_arrivals=None,
+    unactive_departures=None,
+    sector_owned_by_me=None,
+    sector_owned_by_others=None,
+):
+    """Create the optional CoFrance activation object from QGIS fields."""
+    raw_values = (
+        icao,
+        arrivals,
+        departures,
+        unactive_icao,
+        unactive_arrivals,
+        unactive_departures,
+        sector_owned_by_me,
+        sector_owned_by_others,
+    )
+    if all(is_blank(value) for value in raw_values):
+        return None
+
+    activation = {}
+    active = _runway_condition(
+        "activeRunways", "activation", icao, arrivals, departures
+    )
+    if active:
+        activation.update(active)
+    unactive = _runway_condition(
+        "unactiveRunway",
+        "activation_unactive",
+        unactive_icao,
+        unactive_arrivals,
+        unactive_departures,
+    )
+    if unactive:
+        activation.update(unactive)
+
+    owned_by_me = normalize_sector_conditions(sector_owned_by_me)
+    owned_by_others = normalize_sector_conditions(sector_owned_by_others)
+    if owned_by_me:
+        activation["sectorOwnedByMe"] = owned_by_me
+    if owned_by_others:
+        activation["sectorOwnedByOthers"] = owned_by_others
+    return activation or None
+
+
+def normalize_optional_integer(value, field_name):
+    """Return an optional integer from a QGIS value or raise a readable error."""
+    if is_blank(value):
+        return None
+    if isinstance(value, bool):
+        raise CoFranceSchemaError("{} must be an integer.".format(field_name))
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        raise CoFranceSchemaError("{} must be an integer.".format(field_name))
+    if not number.is_integer():
+        raise CoFranceSchemaError("{} must be an integer.".format(field_name))
+    return int(number)
+
+
+def build_display_properties(z_index=None, zoomin=None, zoomout=None):
+    """Build optional feature draw-order and zoom properties."""
+    normalized = {
+        "z-index": normalize_optional_integer(z_index, "z_index"),
+        "zoomin": normalize_optional_integer(zoomin, "zoomin"),
+        "zoomout": normalize_optional_integer(zoomout, "zoomout"),
+    }
+    if (
+        normalized["zoomin"] is not None
+        and normalized["zoomout"] is not None
+        and normalized["zoomin"] > normalized["zoomout"]
+    ):
+        raise CoFranceSchemaError("zoomin must be less than or equal to zoomout.")
+    return {key: value for key, value in normalized.items() if value is not None}
 
 
 def validate_symbol_type(value):

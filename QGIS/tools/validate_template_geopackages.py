@@ -5,6 +5,7 @@ import sqlite3
 import xml.etree.ElementTree as ElementTree
 
 from create_template_geopackages import (
+    DISPLAY_FIELDS,
     OUTPUT_DIRECTORY,
     SVG_STYLE_FILES,
     SYMBOL_TYPES,
@@ -39,17 +40,21 @@ def validate_all():
             ).fetchone()
             if geometry != (definition["geometry"], 4326, 0, 0):
                 raise RuntimeError("Invalid geometry registration: {}".format(path))
-            columns = [
-                row[1]
-                for row in connection.execute(
-                    'PRAGMA table_info("{}")'.format(layer_name)
-                )
-            ]
+            table_info = list(
+                connection.execute('PRAGMA table_info("{}")'.format(layer_name))
+            )
+            columns = [row[1] for row in table_info]
             expected_columns = ["fid", "geom"] + list(definition["fields"])
             if columns != expected_columns:
                 raise RuntimeError(
                     "Unexpected fields in {}: {}".format(path, ", ".join(columns))
                 )
+            column_types = {row[1]: row[2].upper() for row in table_info}
+            for field_name in DISPLAY_FIELDS:
+                if column_types.get(field_name) != "INTEGER":
+                    raise RuntimeError(
+                        "{} must be an INTEGER field in {}".format(field_name, path)
+                    )
             style = connection.execute(
                 """SELECT styleQML FROM layer_styles
                    WHERE f_table_name = ? AND useAsDefault = 1""",
@@ -63,13 +68,6 @@ def validate_all():
                     if 'value="{}"'.format(symbol_type) not in style[0]:
                         raise RuntimeError(
                             "Symbol dropdown is missing {}".format(symbol_type)
-                        )
-                for removed_type in ("vor_classic", "ndb_classic"):
-                    if 'value="{}"'.format(removed_type) in style[0]:
-                        raise RuntimeError(
-                            "Removed symbol remains in dropdown: {}".format(
-                                removed_type
-                            )
                         )
                 style_root = ElementTree.fromstring(style[0])
                 renderer = style_root.find("renderer-v2")

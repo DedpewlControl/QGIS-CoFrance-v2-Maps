@@ -9,11 +9,15 @@ import unittest
 from .cofrance_schema import (
     ACTIVATION_FIELDS,
     CoFranceSchemaError,
+    DISPLAY_FIELDS,
     LAYER_FIELDS,
+    REQUIRED_ACTIVATION_FIELDS,
     build_activation,
+    build_display_properties,
     detect_layer_kind,
     missing_fields,
     normalize_runways,
+    normalize_sector_conditions,
     round_coordinates,
     stable_json,
     validate_layer_fields,
@@ -24,8 +28,12 @@ from .cofrance_schema import (
 class LayerSchemaTests(unittest.TestCase):
     def test_all_templates_include_activation_fields(self):
         for fields in LAYER_FIELDS.values():
-            for activation_field in ACTIVATION_FIELDS:
+            for activation_field in REQUIRED_ACTIVATION_FIELDS:
                 self.assertIn(activation_field, fields)
+
+    def test_optional_wiki_fields_are_declared(self):
+        self.assertIn("activation_unactive_icao", ACTIVATION_FIELDS)
+        self.assertEqual(DISPLAY_FIELDS, ("z_index", "zoomin", "zoomout"))
 
     def test_detects_all_four_layer_kinds(self):
         activation = list(ACTIVATION_FIELDS)
@@ -93,20 +101,60 @@ class ActivationTests(unittest.TestCase):
         with self.assertRaisesRegex(CoFranceSchemaError, "Invalid runway"):
             build_activation("LFMN", "37L", None)
 
+    def test_all_activation_conditions(self):
+        self.assertEqual(
+            build_activation(
+                "LFPG",
+                "27R",
+                None,
+                "LFPG",
+                "26L",
+                None,
+                "LFFFUR + LFFFUH, LFFFUZ",
+                "LFFFTH",
+            ),
+            {
+                "activeRunways": {"LFPG": {"arr": ["27R"]}},
+                "unactiveRunway": {"LFPG": {"arr": ["26L"]}},
+                "sectorOwnedByMe": ["LFFFUR+LFFFUH", "LFFFUZ"],
+                "sectorOwnedByOthers": ["LFFFTH"],
+            },
+        )
+
+    def test_sector_conditions_are_normalized_and_deduplicated(self):
+        self.assertEqual(
+            normalize_sector_conditions("lfffuz; LFFFUR + LFFFUH; lfffuz"),
+            ["LFFFUZ", "LFFFUR+LFFFUH"],
+        )
+
+
+class DisplayPropertyTests(unittest.TestCase):
+    def test_optional_display_properties(self):
+        self.assertEqual(
+            build_display_properties("3", 7, 9),
+            {"z-index": 3, "zoomin": 7, "zoomout": 9},
+        )
+
+    def test_invalid_zoom_range_is_rejected(self):
+        with self.assertRaisesRegex(CoFranceSchemaError, "less than or equal"):
+            build_display_properties(None, 10, 8)
+
+    def test_non_integer_display_value_is_rejected(self):
+        with self.assertRaisesRegex(CoFranceSchemaError, "integer"):
+            build_display_properties(None, "7.5", None)
+
 
 class SymbolAndGroupingTests(unittest.TestCase):
     def test_supported_symbol_is_normalized(self):
         self.assertEqual(validate_symbol_type("diamond_cross"), "diamond_cross")
         self.assertEqual(validate_symbol_type("cross"), "cross")
+        self.assertEqual(validate_symbol_type(" CROSS_LARGE "), "cross_large")
         self.assertEqual(validate_symbol_type(" VOR_DME "), "vor_dme")
         self.assertEqual(validate_symbol_type("tacan"), "tacan")
         self.assertEqual(validate_symbol_type("vortac"), "vortac")
-
-    def test_removed_classic_symbols_are_rejected(self):
-        for symbol_type in ("vor_classic", "ndb_classic"):
-            with self.subTest(symbol_type=symbol_type):
-                with self.assertRaisesRegex(CoFranceSchemaError, "Unsupported"):
-                    validate_symbol_type(symbol_type)
+        self.assertEqual(validate_symbol_type("vor_classic"), "vor_classic")
+        self.assertEqual(validate_symbol_type("AERODROME_PAVED"), "aerodrome_paved")
+        self.assertEqual(validate_symbol_type("x"), "x")
 
     def test_unknown_symbol_is_rejected(self):
         with self.assertRaisesRegex(CoFranceSchemaError, "Unsupported"):
