@@ -128,6 +128,7 @@ class GeoJSONStyler:
                             feature,
                             separators=(",", ":"),
                             ensure_ascii=False,
+                            indent=4
                         )
                     )
                 output.write("\n]}")
