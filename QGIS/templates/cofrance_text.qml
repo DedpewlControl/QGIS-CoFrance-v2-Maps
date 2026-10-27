@@ -1,6 +1,14 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.34.0" styleCategories="Fields">
+<qgis version="3.34.0" styleCategories="Fields|Labeling" labelsEnabled="1">
 
+  <labeling type="simple">
+    <settings>
+      <text-style fieldName="text" isExpression="0" fontFamily="Arial" namedStyle="Regular" fontWeight="50" fontItalic="0" fontSize="10" fontSizeUnit="Point">
+        <families><family name="Arial"/></families>
+      </text-style>
+      <placement placement="1" quadOffset="4" xOffset="0" yOffset="0" offsetUnits="MM"/>
+    </settings>
+  </labeling>
   <fieldConfiguration>
     <field name="uuid" configurationFlags="None">
       <editWidget type="TextEdit">

@@ -202,7 +202,7 @@ def _symbol_renderer():
 
 
 def qgis_field_style(template_name, fields):
-    """Return the QGIS editor configuration and optional symbol previews."""
+    """Return the QGIS editor configuration, symbol previews and text defaults."""
     widgets = []
     for field_name in fields:
         if template_name == "symbols" and field_name == "symbol_type":
@@ -215,9 +215,23 @@ def qgis_field_style(template_name, fields):
     )
     renderer = _symbol_renderer() if template_name == "symbols" else ""
     style_categories = "Symbology|Fields" if renderer else "Fields"
+    labeling = ""
+    label_attributes = ""
+    if template_name == "text":
+        style_categories = "Fields|Labeling"
+        label_attributes = ' labelsEnabled="1"'
+        labeling = """  <labeling type="simple">
+    <settings>
+      <text-style fieldName="text" isExpression="0" fontFamily="Arial" namedStyle="Regular" fontWeight="50" fontItalic="0" fontSize="10" fontSizeUnit="Point">
+        <families><family name="Arial"/></families>
+      </text-style>
+      <placement placement="1" quadOffset="4" xOffset="0" yOffset="0" offsetUnits="MM"/>
+    </settings>
+  </labeling>"""
     return """<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.34.0" styleCategories="{style_categories}">
+<qgis version="3.34.0" styleCategories="{style_categories}"{label_attributes}>
 {renderer}
+{labeling}
   <fieldConfiguration>
 {widgets}
   </fieldConfiguration>
@@ -227,7 +241,9 @@ def qgis_field_style(template_name, fields):
 </qgis>
 """.format(
         style_categories=style_categories,
+        label_attributes=label_attributes,
         renderer=renderer,
+        labeling=labeling,
         widgets="\n".join(widgets),
         aliases=aliases,
     )

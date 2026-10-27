@@ -1,0 +1,32 @@
+{
+  "created_utc": "2026-10-25T17:45:16.143002+00:00",
+  "map_name": "Export",
+  "source_files": [
+    "F:\\[VATSIM.net] Sector Files\\[2611-dev] France\\LFXX\\Plugins\\CoFrance\\maps\\LFBB\\Carte_Trajectoires_UIR.geojson"
+  ],
+  "source_features": 89,
+  "editable_features": 87,
+  "skipped_empty_features": 2,
+  "layers": [
+    "0_CCA_Export\\Carte_Trajectoires_UIR.gpkg",
+    "0_CCA_Export\\R1_Delegation.gpkg",
+    "0_CCA_Export\\Carte_Trajectoires_UIR_02.gpkg",
+    "0_CCA_Export\\Carte_Trajectoires_UIR_03.gpkg",
+    "0_CCA_Export\\Carte_Trajectoires_UIR_04.gpkg",
+    "0_CCA_Export\\Carte_Trajectoires_UIR_05.gpkg",
+    "0_CCA_Export\\Barcelone_Descent_Release.gpkg",
+    "0_CCA_Export\\ROCAN_Reminder_Text_—_ROCAN_AMSR_Altitudes.gpkg"
+  ],
+  "notes": [
+    "F:\\[VATSIM.net] Sector Files\\[2611-dev] France\\LFXX\\Plugins\\CoFrance\\maps\\LFBB\\Carte_Trajectoires_UIR.geojson: a missing feature name was inferred from the filename",
+    "F:\\[VATSIM.net] Sector Files\\[2611-dev] France\\LFXX\\Plugins\\CoFrance\\maps\\LFBB\\Carte_Trajectoires_UIR.geojson: feature 30 has empty coordinates; skipped",
+    "F:\\[VATSIM.net] Sector Files\\[2611-dev] France\\LFXX\\Plugins\\CoFrance\\maps\\LFBB\\Carte_Trajectoires_UIR.geojson: feature 59 has empty coordinates; skipped",
+    "Line opacity is restored for preview but the current exporter does not emit it",
+    "Line widths are preserved for preview; the current exporter emits integer widths of at least one"
+  ],
+  "limitations": [
+    "Layer boundaries are inferred from exported filenames, identifiers and consecutive styles.",
+    "Coordinates have only the precision present in the export.",
+    "Source properties retain metadata the current exporter may not emit."
+  ]
+}

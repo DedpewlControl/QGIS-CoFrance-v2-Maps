@@ -2,6 +2,7 @@
 
 import json
 import os
+import tempfile
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
@@ -30,6 +31,7 @@ from .cofrance_schema import (
     validate_symbol_type,
 )
 from .geojson_styler_dialog import GeoJSONStylerDialog
+from .manifest_export import check_manifest_unchanged, prepare_manifest_update
 
 
 class GeoJSONStyler:
@@ -91,7 +93,7 @@ class GeoJSONStyler:
 
     def run(self):
         """Open the export dialog."""
-        self.dlg = GeoJSONStylerDialog(self.iface.mainWindow())
+        self.dlg = GeoJSONStylerDialog(self.iface.mainWindow(), iface=self.iface)
         self.dlg.populate_layers()
         if self.dlg.exec_():
             self.process_layers()
@@ -101,6 +103,10 @@ class GeoJSONStyler:
         selected_layers = self.dlg.get_selected_layers()
         if not selected_layers:
             QMessageBox.warning(None, "CoFrance export", "Select at least one layer.")
+            return
+
+        if self.dlg.is_batch_export():
+            self.process_group_exports()
             return
 
         output_file, _ = QFileDialog.getSaveFileName(
@@ -118,19 +124,7 @@ class GeoJSONStyler:
             geojson_data = self.merge_to_geojson(
                 selected_layers, self.dlg.get_style_options()
             )
-            with open(output_file, "w", encoding="utf-8") as output:
-                output.write('{"type":"FeatureCollection","features":[\n')
-                for index, feature in enumerate(geojson_data["features"]):
-                    if index:
-                        output.write(",\n")
-                    output.write(
-                        json.dumps(
-                            feature,
-                            separators=(",", ":"),
-                            ensure_ascii=False,
-                        )
-                    )
-                output.write("\n]}")
+            self._write_geojson(output_file, geojson_data)
         except (CoFranceSchemaError, ValueError) as error:
             QMessageBox.critical(None, "CoFrance export validation", str(error))
             return
@@ -151,6 +145,94 @@ class GeoJSONStyler:
                 output_file,
             ),
         )
+
+    @staticmethod
+    def _write_geojson(output_file, geojson_data):
+        """Keep the same compact, one-feature-per-line format for both modes."""
+        with open(output_file, "w", encoding="utf-8") as output:
+            output.write('{"type":"FeatureCollection","features":[\n')
+            for index, feature in enumerate(geojson_data["features"]):
+                if index:
+                    output.write(",\n")
+                output.write(json.dumps(feature, separators=(",", ":"), ensure_ascii=False))
+            output.write("\n]}")
+
+    def process_group_exports(self):
+        """Export selected subgroup batches into a single chosen directory."""
+        try:
+            batches = self.dlg.get_export_batches()
+        except ValueError as error:
+            QMessageBox.critical(None, "CoFrance export validation", str(error))
+            return
+        output_dir = QFileDialog.getExistingDirectory(None, "Choose CoFrance export folder")
+        if not output_dir:
+            return
+        try:
+            manifest_update = (
+                prepare_manifest_update(output_dir, [name for name, _ in batches])
+                if self.dlg.should_update_manifest() else None
+            )
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(None, "CoFrance manifest", str(error))
+            return
+        existing = [name for name, _ in batches if os.path.exists(os.path.join(output_dir, name))]
+        if manifest_update is not None and manifest_update.changed:
+            existing.append(str(manifest_update.path))
+        if existing:
+            answer = QMessageBox.question(
+                None,
+                "Replace existing CoFrance exports?",
+                "Replace these files in the export folder?\n\n" + "\n".join(existing),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if answer != QMessageBox.Yes:
+                return
+        try:
+            counts = self.export_batches(
+                batches, output_dir, self.dlg.get_style_options(), manifest_update
+            )
+        except (CoFranceSchemaError, ValueError) as error:
+            QMessageBox.critical(None, "CoFrance export validation", str(error))
+            return
+        except Exception as error:
+            QMessageBox.critical(None, "CoFrance export", "The export failed:\n{}".format(error))
+            return
+        QMessageBox.information(
+            None,
+            "CoFrance export",
+            "Exported {} files to:\n{}\n\n{}".format(
+                len(counts), output_dir,
+                "\n".join("{} ({} features)".format(name, count) for name, count in counts),
+            ) + (
+                "\n\nManifest updated: {}\n{} map entries added or corrected; {} entries removed.".format(
+                    manifest_update.path, manifest_update.added, manifest_update.removed
+                ) if manifest_update is not None and manifest_update.changed else
+                "\n\nManifest already contains all exported map names."
+                if manifest_update is not None else ""
+            ),
+        )
+
+    def export_batches(self, batches, output_dir, style_options=None, manifest_update=None):
+        """Stage all files before replacing outputs so validation cannot leave a partial batch."""
+        counts = []
+        with tempfile.TemporaryDirectory(prefix=".cofrance-export-", dir=output_dir) as staging:
+            for filename, layers in batches:
+                try:
+                    data = self.merge_to_geojson(layers, style_options)
+                except (CoFranceSchemaError, ValueError) as error:
+                    raise CoFranceSchemaError("{}: {}".format(filename, error)) from error
+                self._write_geojson(os.path.join(staging, filename), data)
+                counts.append((filename, len(data["features"])))
+            if manifest_update is not None and manifest_update.changed:
+                with open(os.path.join(staging, "manifest.json"), "wb") as output:
+                    output.write(manifest_update.content)
+            check_manifest_unchanged(manifest_update)
+            for filename, _ in counts:
+                os.replace(os.path.join(staging, filename), os.path.join(output_dir, filename))
+            if manifest_update is not None and manifest_update.changed:
+                os.replace(os.path.join(staging, "manifest.json"), manifest_update.path)
+        return counts
 
     @staticmethod
     def _sanitize_value(value):

@@ -1,0 +1,274 @@
+{
+  "type": "FeatureCollection",
+  "name": "CCA_Bastia_VFR_Points",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "N",
+        "ident": "N",
+        "text": "N",
+        "description_fr": "Travers port de Bastia",
+        "description_en": "Abeam Bastia harbour",
+        "latitude_dms": "42°42'10\"N",
+        "longitude_dms": "009°27'48\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.46333333,
+          42.70277778
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NW",
+        "ident": "NW",
+        "text": "NW",
+        "description_fr": "Col de Téghime",
+        "description_en": "Teghime pass",
+        "latitude_dms": "42°40'20\"N",
+        "longitude_dms": "009°22'58\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.38277778,
+          42.67222222
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NA",
+        "ident": "NA",
+        "text": "NA",
+        "description_fr": "Hippodrome de Casatorra",
+        "description_en": "Casatorra racecourse",
+        "latitude_dms": "42°37'10\"N",
+        "longitude_dms": "009°26'08\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.43555556,
+          42.61944444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "W",
+        "ident": "W",
+        "text": "W",
+        "description_fr": "Col du Lancone",
+        "description_en": "Lancone pass",
+        "latitude_dms": "42°36'00\"N",
+        "longitude_dms": "009°21'58\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.36611111,
+          42.6
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SA",
+        "ident": "SA",
+        "text": "SA",
+        "description_fr": "Travers Sud centrale thermique de Lucciana",
+        "description_en": "South abeam Lucciana's power plant",
+        "latitude_dms": "42°31'20\"N",
+        "longitude_dms": "009°26'38\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.44388889,
+          42.52222222
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SW",
+        "ident": "SW",
+        "text": "SW",
+        "description_fr": "Usine de Barchetta",
+        "description_en": "Barchetta plant",
+        "latitude_dms": "42°30'30\"N",
+        "longitude_dms": "009°22'18\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.37166667,
+          42.50833333
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "S",
+        "ident": "S",
+        "text": "S",
+        "description_fr": "Port de Campoloro",
+        "description_en": "Campoloro harbour",
+        "latitude_dms": "42°20'20\"N",
+        "longitude_dms": "009°32'28\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.54111111,
+          42.33888889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "N1",
+        "ident": "N1",
+        "text": "N1",
+        "description_fr": "Tour de Losse",
+        "description_en": "Losse tower",
+        "latitude_dms": "42°51'40\"N",
+        "longitude_dms": "009°28'51\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.48083333,
+          42.86111111
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HV",
+        "ident": "HV",
+        "text": "HV",
+        "description_fr": "Travers chapelle San Parteo",
+        "description_en": "Abeam San Parteo chapel",
+        "latitude_dms": "42°32'17\"N",
+        "longitude_dms": "009°29'23\"E",
+        "remark_fr": "Virage Sud",
+        "remark_en": "South turn"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.48972222,
+          42.53805556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HX",
+        "ident": "HX",
+        "text": "HX",
+        "description_fr": "Hangar couvert de panneaux photovoltaïques",
+        "description_en": "Hangar covered with photovoltaic panels",
+        "latitude_dms": "42°34'46\"N",
+        "longitude_dms": "009°28'01\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.46694444,
+          42.57944444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HZ",
+        "ident": "HZ",
+        "text": "HZ",
+        "description_fr": "200 m à l'Ouest du champ photovoltaïque",
+        "description_en": "200 m West of photovoltaic field",
+        "latitude_dms": "42°30'06\"N",
+        "longitude_dms": "009°30'19\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.50527778,
+          42.50166667
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HO",
+        "ident": "HO",
+        "text": "HO",
+        "description_fr": "Embouchure - delta du fleuve Golo",
+        "description_en": "Golo river mouth",
+        "latitude_dms": "42°31'23\"N",
+        "longitude_dms": "009°32'02\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.53388889,
+          42.52305556
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HW",
+        "ident": "HW",
+        "text": "HW",
+        "description_fr": "Intersection RN et 2 x 2 voies",
+        "description_en": "Intersection of National road and 2 x 2 lane road",
+        "latitude_dms": "42°34'19\"N",
+        "longitude_dms": "009°26'27\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.44083333,
+          42.57194444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "HB",
+        "ident": "HB",
+        "text": "HB",
+        "description_fr": "Sud Etang de Biguglia",
+        "description_en": "South of Biguglia pond",
+        "latitude_dms": "42°33'46\"N",
+        "longitude_dms": "009°30'52\"E"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.51444444,
+          42.56277778
+        ]
+      }
+    }
+  ]
+}

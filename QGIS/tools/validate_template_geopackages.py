@@ -62,7 +62,18 @@ def validate_all():
             ).fetchone()
             if not style:
                 raise RuntimeError("Missing embedded QGIS style: {}".format(path))
-            ElementTree.fromstring(style[0])
+            style_root = ElementTree.fromstring(style[0])
+            if template_name == "text":
+                labeling = style_root.find("labeling")
+                text_style = style_root.find("./labeling/settings/text-style")
+                placement = style_root.find("./labeling/settings/placement")
+                if (style_root.get("labelsEnabled") != "1" or labeling is None
+                        or labeling.get("type") != "simple" or text_style is None
+                        or text_style.get("fieldName") != "text"
+                        or text_style.get("isExpression") != "0"
+                        or text_style.get("fontFamily") != "Arial"
+                        or placement is None or placement.get("placement") != "1"):
+                    raise RuntimeError("Text template must use Single Labels, text, Arial and Offset from point")
             if template_name == "symbols":
                 for symbol_type in SYMBOL_TYPES:
                     if 'value="{}"'.format(symbol_type) not in style[0]:
