@@ -23,6 +23,8 @@ substantially reworked for the current CoFrance v2 layer schema and workflow.
 - Limit exported coordinates to six decimal places.
 - Validate layer schemas and feature values before writing the output.
 - Preserve QGIS layer-tree order when selecting layers for export.
+- Preselect highlighted QGIS layers/groups in the export dialog, with a button
+  to reload the highlights and a visible selected-layer count.
 
 ## Requirements
 
@@ -34,9 +36,14 @@ No third-party Python packages are required by the plugin.
 
 ## Installation
 
+For a packaged update, use **Plugins > Manage and Install Plugins > Install from
+ZIP** and select `QGIS-CoFrance-Exporter.zip`, then restart/reload the plugin.
+The ZIP contains the plugin folder `geojsonStyler`.
+
 1. Download or clone this repository.
-2. Copy the `geojsonStyler` directory into the `python/plugins` directory of
-   your QGIS user profile.
+2. Copy the `QGIS-CoFrance-Exporter` directory into the `python/plugins`
+   directory of your QGIS user profile and rename the copy to `geojsonStyler`.
+   Replace the existing copy when updating the plugin.
 3. Restart QGIS.
 4. Open **Plugins → Manage and Install Plugins** and enable
    **QGIS to CoFrance v2**.
@@ -45,6 +52,42 @@ The exporter is available from the Vector menu and the QGIS toolbar as
 **Export CoFrance v2 GeoJSON**.
 
 ## Quick start
+
+Highlight layers or a map group in the QGIS Layers panel, then open **Export
+CoFrance v2 GeoJSON**. Those targets are checked automatically, including vector
+layers in nested groups. Check the selected-layer count, adjust checkboxes as
+needed, then export. **Use highlighted layers/groups** replaces the checked
+targets with the current highlight selection. Changing highlights afterward
+does not silently change the checked export list. A highlighted layer is exported
+with all features allowed by its filter; map-feature selections are separate.
+
+The [CoFrance Processing tools index](QGIS/tools/README.md) lists the current
+thirteen tools and the one-step installer, which backs up previous profile copies.
+
+Use [Navaids](QGIS/tools/generate_navaid_packages.md) or
+[Airports](QGIS/tools/generate_airport_packages.md) to create Symbols + Names,
+or [Runways](QGIS/tools/generate_runway_packages.md) for Lines only, selected by
+perimeter or a manual identifier/ICAO list. Navaid types are cross-checked against
+the selected SIA eAIP edition, with its AIRAC cycle recorded and cached in QGIS.
+
+Use the separate [Airways](QGIS/tools/generate_airways.md),
+[SID](QGIS/tools/generate_sid.md) and [STAR](QGIS/tools/generate_star.md) tools
+to create line, symbol and name GeoPackages from high/low airways selected by
+identifier list or perimeter, and STARs/SIDs selected by airport ICAO and runway
+configuration, with reference or ordered manual routes.
+
+Use [Generate CoFrance trajectory points and names](QGIS/tools/generate_trajectory_points.md)
+for any selected FRA/route layer. This replaces the Bordeaux-specific tool.
+[Names from placed symbols](QGIS/tools/generate_fix_names.md) and
+[specified point lists](QGIS/tools/create_points_from_list.md) now assign
+FIX_NAME, VOR_NAME, NDB_NAME and other categories by point type.
+
+Use [Modify CoFrance Z-index](QGIS/tools/modify_z_index.md) to set the stored
+z-index field across selected layers or groups.
+
+Other tools cover [terminal/enroute holds](QGIS/tools/generate_holding.md),
+[map structures](QGIS/tools/create_map_structure.md), and
+[recovering exported GeoJSON](QGIS/tools/import_cofrance_map.md).
 
 Ready-made GeoPackages are available in [`QGIS/templates`](QGIS/templates/):
 
@@ -128,6 +171,12 @@ CoFrance supports one style object per exported feature. Complex stacked
 symbols may therefore be reduced to the first compatible QGIS symbol layer.
 
 ## Text-label workflow
+
+For FIX symbols, navaids or airport reference points already placed on a map, use the
+[Generate CoFrance FIX names Processing script](QGIS/tools/generate_fix_names.md)
+to choose the matching masters from the layer name and create an offset text
+GeoPackage from the text template automatically. It supports a manual layer
+picker and an automatic folder scan that creates only missing names layers.
 
 Text position comes from point geometry, text content comes from the `text`
 attribute, and appearance comes from QGIS labeling.
@@ -227,6 +276,57 @@ Unknown symbol values stop the export and produce a validation message.
 
 ## Export behavior
 
+By default, **Export separate files by subgroup** is enabled. Select a parent
+group such as **Limoges**, click **OK**, and choose an output folder. Each
+numbered subgroup exports all its checked layers (including nested groups) into
+one file named after the subgroup, for example:
+
+- `0_CCA_Limoges.geojson`
+- `1_CCA_Limoges_MVA.geojson`
+- `3_CCA_Limoges_Navaids_Names.geojson`
+- `3_CCA_Limoges_FIX_Names.geojson`
+
+Other numbered subgroups, such as procedures, export the same way when selected.
+The VFR subgroup is split into `4_CCA_Limoges_VFR_Point_Names.geojson` for
+VFR point names and `4_CCA_Limoges_ARPs.geojson` for ARP symbols plus ARP names.
+ARP layer names ending in `ARP`, `ARPs`, `ARP_Names`, or `ARPs_Names` are
+recognized, including names containing spaces. Other layers in the VFR subgroup
+go into the VFR point names file. Files are only created for selected layers;
+empty groups produce no file. Layer draw order is preserved within each file.
+
+Existing files require confirmation before replacement. All batches are
+validated and staged before any destination file is replaced. Conflicting
+filenames from different group paths are reported so they cannot overwrite
+each other. Uncheck **Export separate files by subgroup** to combine all checked
+layers into a single file instead.
+
+**Update manifest.json when found** is also enabled by default for batch
+exports. Choose your map's destination folder as usual. The plugin looks for
+`manifest.json` in that folder, then its parent folders, using the closest one.
+It registers exported filenames without the `.geojson` extension in the matching
+FIR/airport list. For example, Limoges maps update `LFBB` → `LFBL`, even when
+exporting into an `LFBB/LFBL` folder below the manifest.
+
+Existing map names identify the correct entry; the `0_CCA_…` or `0_EGA_…` base
+map also identifies where newly exported subgroups belong. ICAO folder names
+provide context for shared or new map names. Existing entries and their order,
+other airports, and `$schema` are preserved. Partial exports add missing names
+without removing unchecked maps. Names differing only in letter case are
+corrected to match the actual exported filename. When exporting a combined ARP
+map, matching legacy entries such as `_VFR_ARPs`, `_VFR_ARP`, `_ARP`,
+`_ARP_Names`, or `_VFR_ARPs_Names` are replaced by one `_ARPs` entry at the
+first ARP position. This cleanup applies only to the exported ARP map in its
+matching section; VFR point names and other airports keep their entries.
+Legacy group names also export with the canonical `_ARPs.geojson` filename.
+A manifest which already has all names and needs no cleanup is left untouched.
+
+Manifest changes are staged with the GeoJSON files and applied after all layers
+validate. Invalid JSON, ambiguous or missing destinations, or a manifest changed
+by another program stop the export with a message. Uncheck the manifest option
+to export without updating it. When no manifest is found, export works normally.
+The plugin writes GeoJSON to the folder you choose; it does not move existing
+files or create new FIR/airport sections in the manifest.
+
 - Output coordinates are always WGS 84 longitude/latitude (`EPSG:4326`).
 - Coordinates are rounded to a maximum of six decimal places.
 - Features with empty geometries are skipped.
@@ -243,8 +343,11 @@ Unknown symbol values stop the export and produce a validation message.
 The schema and activation helpers can be tested without starting QGIS:
 
 ```text
-python -m unittest geojsonStyler.test_plugin
+python -m unittest QGIS-CoFrance-Exporter.test_plugin QGIS-CoFrance-Exporter.test_group_exports QGIS-CoFrance-Exporter.test_manifest_export
 ```
+
+The batch test module also runs dialog and file-export integration tests when
+launched using QGIS's Python runtime (`python-qgis-ltr.bat` on Windows).
 
 Template GeoPackages can be regenerated and checked with:
 
